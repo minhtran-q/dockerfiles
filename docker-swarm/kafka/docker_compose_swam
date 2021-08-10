@@ -1,0 +1,161 @@
+version: '3.7'
+services:
+  zookeeper1:
+    image: zookeeper:3.7.0
+    hostname: zookeeper1
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "2181:2181"
+    environment:
+        ZOO_MY_ID: 1
+        ZOO_PORT: 2181
+        ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    volumes:
+      - vl-zookeeper1:/data
+      - vl-zookeeper1:/datalog
+  zookeeper2:
+    image: zookeeper:3.7.0
+    hostname: zookeeper2
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "2182:2181"
+    environment:
+        ZOO_MY_ID: 2
+        ZOO_PORT: 2181
+        ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    volumes:
+      - vl-zookeeper2:/data
+      - vl-zookeeper2:/datalog
+  zookeeper3:
+    image: zookeeper:3.7.0
+    hostname: zookeeper3
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "2183:2181"
+    environment:
+        ZOO_MY_ID: 3
+        ZOO_PORT: 2181
+        ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    volumes:
+      - vl-zookeeper3:/data
+      - vl-zookeeper3:/datalog
+  kafka1:
+    image: wurstmeister/kafka:latest
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "9092:7092"
+      - "1099:1099"
+    environment:
+      KAFKA_LISTENERS: DIL://:9092,DEL://:7092
+      KAFKA_ADVERTISED_LISTENERS: DIL://:9092,DEL://192.168.56.4:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DIL:PLAINTEXT,DEL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DIL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_BROKER_ID: 1
+    volumes:
+      - vl-kafka1:/var/lib/kafka/data
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+  kafka2:
+    image: wurstmeister/kafka:latest
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "9093:7092"
+      - "1100:1099"
+    environment:
+      KAFKA_LISTENERS: DIL://:9092,DEL://:7092
+      KAFKA_ADVERTISED_LISTENERS: DIL://:9092,DEL://192.168.56.4:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DIL:PLAINTEXT,DEL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DIL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_BROKER_ID: 2
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.56.4 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
+    volumes:
+      - vl-kafka2:/var/lib/kafka/data
+    depends_on:
+      - kafka1
+  kafka3:
+    image: wurstmeister/kafka:latest
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "9094:7092"
+      - "1101:1099"
+    environment:
+      KAFKA_LISTENERS: DIL://:9092,DEL://:7092
+      KAFKA_ADVERTISED_LISTENERS: DIL://:9092,DEL://192.168.56.4:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DIL:PLAINTEXT,DEL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DIL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_BROKER_ID: 3
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.56.4 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
+    volumes:
+      - vl-kafka3:/var/lib/kafka/data
+    depends_on:
+      - kafka2
+  kafka4:
+    image: wurstmeister/kafka:latest
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "9095:7092"
+      - "1102:1099"
+    environment:
+      KAFKA_LISTENERS: DIL://:9092,DEL://:7092
+      KAFKA_ADVERTISED_LISTENERS: DIL://:9092,DEL://192.168.56.4:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DIL:PLAINTEXT,DEL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DIL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_BROKER_ID: 4
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.56.4 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
+    volumes:
+      - vl-kafka4:/var/lib/kafka/data
+    depends_on:
+      - kafka3
+  kafka5:
+    image: wurstmeister/kafka:latest
+    deploy:
+      restart_policy:
+        condition: none
+    ports:
+      - "9096:7092"
+      - "1103:1099"
+    environment:
+      KAFKA_LISTENERS: DIL://:9092,DEL://:7092
+      KAFKA_ADVERTISED_LISTENERS: DIL://:9092,DEL://192.168.56.4:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DIL:PLAINTEXT,DEL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DIL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_BROKER_ID: 5
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.56.4 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
+    volumes:
+      - vl-kafka5:/var/lib/kafka/data
+    depends_on:
+      - kafka4
+volumes:
+  vl-zookeeper1:
+  vl-zookeeper2:
+  vl-zookeeper3:
+  vl-kafka1:
+  vl-kafka2:
+  vl-kafka3:
+  vl-kafka4:
+  vl-kafka5:
